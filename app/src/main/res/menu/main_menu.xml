@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/plusIcon"
+        android:icon="@drawable/ic_add"
+        android:title="Dodaj"
+        app:showAsAction="always" />
+
+    <item android:id="@+id/sortIcon"
+        android:title="Sortuj"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/exportIcon"
+        android:title="Eksportuj dane do pliku txt"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/importIcon"
+        android:title="Importuj dane z pliku txt"
+        app:showAsAction="never"/>
+</menu>
