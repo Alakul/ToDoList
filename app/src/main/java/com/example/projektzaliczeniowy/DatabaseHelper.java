@@ -5,11 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -69,6 +65,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void insertFromFile(String task, String date, String time, int checked, int priority){
+        db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM "+ TABLE_TODO + " WHERE "+ COLUMN_TASK+ "=? AND "+ COLUMN_DATE+ "=? AND "+ COLUMN_TIME +"= ?", new String[]{String.valueOf(task), String.valueOf(date), String.valueOf(time)});
+
+        if (cursor.getCount() == 0) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(COLUMN_TASK, task);
+            contentValues.put(COLUMN_DATE, date);
+            contentValues.put(COLUMN_TIME, time);
+            contentValues.put(COLUMN_CHECKED, checked);
+            contentValues.put(COLUMN_PRIORITY, priority);
+
+            db=this.getWritableDatabase();
+            db.insert(TABLE_TODO,null,contentValues);
+            db.close();
+            cursor.close();
+        }
+    }
+
     public void update(int id, String task, String date, String time, int priority) {
         db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -84,6 +99,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void delete(int id) {
         SQLiteDatabase db=this.getWritableDatabase();
         db.delete(TABLE_TODO, COLUMN_ID + "=?",  new String[]{String.valueOf(id)});
+        db.close();
+    }
+
+    public void deleteAllData(){
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.delete(TABLE_TODO, null, null);
         db.close();
     }
 

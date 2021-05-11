@@ -18,4 +18,8 @@
     <item android:id="@+id/importIcon"
         android:title="Importuj dane z pliku txt"
         app:showAsAction="never"/>
+
+    <item android:id="@+id/deleteAllIcon"
+        android:title="Wyczyść"
+        app:showAsAction="never"/>
 </menu>

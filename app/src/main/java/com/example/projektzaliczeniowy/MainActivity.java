@@ -1,14 +1,23 @@
 package com.example.projektzaliczeniowy;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.ActionMode;
@@ -17,35 +26,41 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView test;
+    EditText inputFilename;
+    ListView listView;
+    ArrayList<ToDoTable> toDoArrayList;
+    AdapterToDo toDoAdapter;
+    DatabaseHelper databaseHelper;
+    int sortTasks;
+    Intent intentFile;
 
-    private ListView listView;
-    private ArrayList<ToDoTable> toDoArrayList;
-    private AdapterToDo toDoAdapter;
-    private DatabaseHelper databaseHelper;
-    private int sortTasks;
-    
+    public static final int READ_TXT_FILE = 1;
+    public static final int WRITE_TXT_FILE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        test = (TextView) findViewById(R.id.test);
 
         //Database
         databaseHelper =new DatabaseHelper(this);
@@ -119,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                         deleted++;
                     }
                     onResume();
+                    showTasks();
                     mode.finish();
 
                     Toast.makeText(getApplicationContext(), "Usunięto " + deleted + " z " + sumDel, Toast.LENGTH_SHORT).show();
@@ -134,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
                         checked++;
                     }
                     onResume();
+                    showTasks();
                     mode.finish();
 
                     Toast.makeText(getApplicationContext(), "Oznaczono " + checked + " z " + sumChecked, Toast.LENGTH_SHORT).show();
@@ -150,12 +167,11 @@ public class MainActivity extends AppCompatActivity {
                         unchecked++;
                     }
                     onResume();
+                    showTasks();
                     mode.finish();
 
                     Toast.makeText(getApplicationContext(), "Oznaczono " + unchecked + " z " + sumUnchecked, Toast.LENGTH_SHORT).show();
                     return true;
-
-
                 }
                 return false;
             }
@@ -172,15 +188,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
+        showTasks();
         savePreferences();
-        toDoAdapter.swapItems(databaseHelper.getAllData(sortTasks));
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        showTasks();
         getPreferences();
-        toDoAdapter.swapItems(databaseHelper.getAllData(sortTasks));
     }
 
     @Override
@@ -201,29 +217,29 @@ public class MainActivity extends AppCompatActivity {
                 sortTasks();
                 break;
             case R.id.exportIcon:
-                try {
-                    exportTasks();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                checkPermissionWrite();
                 break;
             case R.id.importIcon:
-                importTasks();
+                checkPermissionRead();
                 break;
+            case R.id.deleteAllIcon:
+                deleteTasks();
+                break;
+
             default:
                 return false;
         }
         return true;
     }
 
-    public void savePreferences(){
+    void savePreferences(){
         SharedPreferences preferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("sortData", sortTasks);
         editor.apply();
     }
 
-    public void getPreferences(){
+    void getPreferences(){
         SharedPreferences preferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         sortTasks = preferences.getInt("sortData", -1);
     }
@@ -265,75 +281,171 @@ public class MainActivity extends AppCompatActivity {
         toDoAdapter.swapItems(databaseHelper.getAllData(sortTasks));
     }
 
+    void deleteTasks() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Czy na pewno chcesz usunąć wszystkie zadania?");
+        builder.setCancelable(true);
+
+        builder.setPositiveButton("Tak",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        databaseHelper.deleteAllData();
+                        showTasks();
+                    }
+                });
+
+        builder.setNegativeButton("Anuluj",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     void showTasks() {
         toDoArrayList= databaseHelper.getAllData(sortTasks);
         toDoAdapter = new AdapterToDo(this,toDoArrayList);
         listView.setAdapter(toDoAdapter);
     }
 
-
-
-
-
-
-
-
-    void exportTasks() throws IOException {
-        BufferedReader bf = null;
-        String filename = "ae.txt";
+    void exportTasks(String filename) {
+        String filenameFull = filename+".txt";
         String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File file = new File(path,filename);
-        FileWriter fw = new FileWriter(file,true);
-
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (ToDoTable toDo : toDoArrayList) {
-            sb.append(toDo.getId()).append(";").append(toDo.getTask()).append(";").append(toDo.getDate())
+            sb.append(toDo.getTask()).append(";").append(toDo.getDate())
                     .append(";").append(toDo.getTime()).append(";").append(toDo.getChecked()).append(";")
                     .append(toDo.getPriority()).append("\n");
         }
 
         String strToSave = sb.toString();
-        //FileOutputStream outputStream;
 
-        test.setText(strToSave);
         try {
-            bf = new BufferedReader(new FileReader(filename));
+            File file = new File(path,filenameFull);
+            FileWriter fw;
 
-            fw.write(strToSave);
-            fw.close();
-            /*
-            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(strToSave.getBytes());
-            outputStream.close();*/
-        } finally{
-            if (bf != null)
-            {
-                bf.close();
-                fw.close();
+            if (file.exists() && file.isFile()) {
+                file.delete();
             }
+            file.createNewFile();
+
+            file = new File(path,filenameFull);
+            fw = new FileWriter(file,true);
+
+            fw.append(strToSave);
+            fw.flush();
+            fw.close();
+
+            Toast.makeText(this, "Zadania wyeksportowane pomyślnie.", Toast.LENGTH_SHORT).show();
+        } catch (Exception e){
+            Toast.makeText(this, "Wystąpił błąd.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    void importTasks(){
+    void importTasks(String filePath){
         try {
             File path = Environment.getExternalStorageDirectory();
-            File file = new File(path,"ae.txt");
-
+            String filename = path+"/"+filePath.substring(filePath.lastIndexOf(":")+1);
+            File file = new File(filename);
 
             StringBuilder text = new StringBuilder();
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
 
             while ((line = br.readLine()) != null) {
+                String[] values = line.split(";");
+                databaseHelper.insertFromFile(values[0],values[1], values[2], Integer.parseInt(values[3]), Integer.parseInt(values[4]));
+
                 text.append(line);
                 text.append('\n');
             }
             br.close();
-            test.setText(text);
+            Toast.makeText(this, "Zadania zaimportowane pomyślnie.", Toast.LENGTH_SHORT).show();
+            onResume();
+        }
+        catch (IndexOutOfBoundsException e) {
+            Toast.makeText(this, "Zła struktutura pliku.", Toast.LENGTH_SHORT).show();
+        }
+        catch (NumberFormatException e) {
+            Toast.makeText(this, "Nieprawidłowy format danych.", Toast.LENGTH_SHORT).show();
         }
         catch (IOException e) {
-            Log.e("SAVE_FILE", e.getMessage());
+            Toast.makeText(this, "Coś poszło nie tak.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    void showAlertFilename(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Podaj nazwę pliku:");
+        inputFilename = new EditText(this);
+        builder.setView(inputFilename);
+
+        builder.setPositiveButton("Eksportuj",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String filename = inputFilename.getText().toString();
+                        String taskTrim = filename.trim();
+                        if (taskTrim.length()!=0){
+                            exportTasks(filename);
+                        }
+                    }
+                });
+
+        builder.setNegativeButton("Anuluj",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    void showFileManager(){
+        intentFile = new Intent(Intent.ACTION_GET_CONTENT);
+        intentFile.setType("text/plain");
+        startActivityForResult(intentFile, READ_TXT_FILE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == READ_TXT_FILE && resultCode == Activity.RESULT_OK) {
+            String path = data.getData().getPath();
+            importTasks(path);
+        }
+    }
+
+    void checkPermissionRead(){
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            showFileManager();
+        }
+        else {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE }, READ_TXT_FILE);
+        }
+    }
+
+    void checkPermissionWrite(){
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            showAlertFilename();
+        }
+        else {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_TXT_FILE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == WRITE_TXT_FILE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            showAlertFilename();
+        }
+        else if (requestCode == READ_TXT_FILE && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            showFileManager();
         }
     }
 }

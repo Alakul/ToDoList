@@ -24,9 +24,9 @@ import java.util.Locale;
 
 public class EditTaskActivity extends AppCompatActivity {
 
-    private EditText task;
-    private TextView displayDate, displayTime;
-    private DatabaseHelper databaseHelper;
+    EditText task;
+    TextView displayDate, displayTime;
+    DatabaseHelper databaseHelper;
     RadioGroup priorityGroup;
     RadioButton priorityHigh, priorityMedium, priorityLow;
 
@@ -59,9 +59,15 @@ public class EditTaskActivity extends AppCompatActivity {
         priorityLow = (RadioButton) findViewById(R.id.radioButtonLow);
 
         //Set priority
-        if (priorityI == 1){ priorityHigh.setChecked(true); }
-        else if (priorityI == 2){ priorityMedium.setChecked(true); }
-        else if (priorityI == 3){ priorityLow.setChecked(true); }
+        if (priorityI == 1){
+            priorityHigh.setChecked(true);
+        }
+        else if (priorityI == 2){
+            priorityMedium.setChecked(true);
+        }
+        else if (priorityI == 3){
+            priorityLow.setChecked(true);
+        }
 
         //Task
         task = findViewById(R.id.editTaskValue);
@@ -118,7 +124,7 @@ public class EditTaskActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(menuItem);
     }
 
-    private void showTimePickerDialog() {
+    void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour, int minute) {
@@ -129,8 +135,8 @@ public class EditTaskActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-    private void showDatePickerDialog() {
-        final Calendar calendar=Calendar.getInstance();
+    void showDatePickerDialog() {
+        final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -148,14 +154,14 @@ public class EditTaskActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    private void showAlertDialogEmpty() {
+    void showAlertDialogEmpty() {
         AlertDialog.Builder alert=new AlertDialog.Builder(this);
         alert.setMessage("Wypełnij wszystkie pola!");
         alert.setPositiveButton("OK", null);
         alert.show();
     }
 
-    private void editTask(String taskTrim, int priority) {
+    void editTask(String taskTrim, int priority) {
         int idUpdate = getIntent().getIntExtra("ID",0);
         String dateUpdate = displayDate.getText().toString();
         String timeUpdate = displayTime.getText().toString();

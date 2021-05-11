@@ -39,12 +39,12 @@ import java.util.Locale;
 
 public class AddTaskActivity extends AppCompatActivity {
 
-    private EditText task;
-    private TextView displayDate;
-    private TextView displayTime;
+    EditText task;
+    TextView displayDate;
+    TextView displayTime;
     RadioGroup priorityGroup;
     RadioButton priorityHigh, priorityMedium, priorityLow;
-    private DatabaseHelper databaseHelper;
+    DatabaseHelper databaseHelper;
 
 
     //***
@@ -127,16 +127,26 @@ public class AddTaskActivity extends AppCompatActivity {
                 String taskTrim = task.getText().toString().trim();
 
                 int priorityVal = 0;
-                if (priorityHigh.isChecked()){ priorityVal = 1; }
-                else if (priorityMedium.isChecked()){ priorityVal = 2; }
-                else if (priorityLow.isChecked()){ priorityVal = 3; }
+                if (priorityHigh.isChecked()){
+                    priorityVal = 1;
+                }
+                else if (priorityMedium.isChecked()){
+                    priorityVal = 2;
+                }
+                else if (priorityLow.isChecked()){
+                    priorityVal = 3;
+                }
 
                 if (priorityVal==0){
                     showAlertDialogEmpty();
                 }
                 else {
-                    if (taskTrim.length()==0) { showAlertDialogEmpty(); }
-                    else { addTask(taskTrim, priorityVal); }
+                    if (taskTrim.length()==0) {
+                        showAlertDialogEmpty();
+                    }
+                    else {
+                        addTask(taskTrim, priorityVal);
+                    }
                 }
             }
         });
@@ -151,7 +161,7 @@ public class AddTaskActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(menuItem);
     }
 
-    private void showTimePickerDialog() {
+    void showTimePickerDialog() {
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hour, int minute) {
@@ -162,7 +172,7 @@ public class AddTaskActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-    private void showDatePickerDialog() {
+    void showDatePickerDialog() {
         final Calendar calendar=Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
@@ -181,14 +191,14 @@ public class AddTaskActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    private void showAlertDialogEmpty() {
+    void showAlertDialogEmpty() {
         AlertDialog.Builder alert=new AlertDialog.Builder(this);
         alert.setMessage("Wypełnij wszystkie pola!");
         alert.setPositiveButton("OK", null);
         alert.show();
     }
 
-    private void addTask(String taskTrim, int priority) {
+    void addTask(String taskTrim, int priority) {
         String dateT = displayDate.getText().toString();
         String timeT = displayTime.getText().toString();
         if (databaseHelper.insert(taskTrim, dateT, timeT, priority)) {
