@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             public void create(SwipeMenu menu) {
                 SwipeMenuItem openItem = new SwipeMenuItem(
                         getApplicationContext());
-                openItem.setBackground(R.color.colorPrimary);
+                openItem.setBackground(R.color.colorPrimaryDark);
                 openItem.setWidth(180);
                 openItem.setTitle("Edytuj");
                 openItem.setTitleSize(18);
