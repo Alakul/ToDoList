@@ -1,5 +1,3 @@
-<img src="./screenshots/logo.png" width="250" alt="Logo">
-
 # ToDoList
 ToDoList is an app where you can plan and manage your tasks. It enables you to store data about task you did or you're gonna do, time, date and priority.
 
@@ -25,7 +23,7 @@ Project is created with:
 List of features:
 * Showing list of tasks
 * Adding, editing and deleting records from list of tasks
-* Deleting all rows from list
+* Deleting all rows in list
 * Sorting the tasks
 * Exporting and importing text files
 
