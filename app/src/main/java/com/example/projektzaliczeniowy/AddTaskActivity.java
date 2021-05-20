@@ -1,30 +1,16 @@
 package com.example.projektzaliczeniowy;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -32,7 +18,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -40,44 +25,17 @@ import java.util.Locale;
 public class AddTaskActivity extends AppCompatActivity {
 
     EditText task;
+    String taskValue;
     TextView displayDate;
     TextView displayTime;
     RadioGroup priorityGroup;
     RadioButton priorityHigh, priorityMedium, priorityLow;
     DatabaseHelper databaseHelper;
 
-
-    //***
-    private ImageView photo;
-    ListView attachmentList;
-    ArrayList<String> attachments;
-    AdapterAttachment attachmentListAdapter;
-    public static final int GALLERY_REQUEST_CODE = 105;
-    public static final int PICK_IMAGE_MULTIPLE = 1;
-    //***
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
-
-
-        //***
-        photo = (ImageView) findViewById(R.id.imageView2);
-        attachmentList = (ListView) findViewById(R.id.attachmentList);
-        attachmentListAdapter = new AdapterAttachment(this, attachments);
-
-        findViewById(R.id.attachButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                gallery.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(gallery, GALLERY_REQUEST_CODE);
-            }
-        });
-        //***
-
 
         //Menu
         ActionBar actionBar = getSupportActionBar();
@@ -145,6 +103,7 @@ public class AddTaskActivity extends AppCompatActivity {
                         showAlertDialogEmpty();
                     }
                     else {
+                        taskValue = taskTrim;
                         addTask(taskTrim, priorityVal);
                     }
                 }
@@ -173,7 +132,7 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     void showDatePickerDialog() {
-        final Calendar calendar=Calendar.getInstance();
+        final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -208,58 +167,4 @@ public class AddTaskActivity extends AppCompatActivity {
             Toast.makeText(this, "Rekord istnieje", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
-
-    //***
-    public void checkPermission(){
-        if (ContextCompat.checkSelfPermission(AddTaskActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            //loadFiles();
-        }
-        else {
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == GALLERY_REQUEST_CODE){
-            if (grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                //loadFiles();
-            }
-            else {
-                //textView.setText("Brak uprawnień do wyświetlenia galerii");
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_MULTIPLE && resultCode == Activity.RESULT_OK) {
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-            attachments = new ArrayList<String>();
-
-            if (data.getClipData() != null) {
-                int count = data.getClipData().getItemCount();
-                Uri imageUri;
-                for (int i = 0; i < count; i++){
-                    imageUri = data.getClipData().getItemAt(i).getUri();
-                    attachments.set(0, String.valueOf(imageUri));
-                }
-            }
-            else if (data.getData() != null) {
-                String imagePath = data.getData().getPath();
-                photo.setImageURI(Uri.parse(imagePath));
-            }
-        }
-        showAttachments();
-    }
-
-    void showAttachments() {
-        attachmentListAdapter = new AdapterAttachment(this,attachments);
-        attachmentList.setAdapter(attachmentListAdapter);
-    }
-    //***
 }

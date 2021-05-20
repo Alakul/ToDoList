@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -14,12 +15,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,21 +26,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,18 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
         //List
         listView = findViewById(R.id.listView);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                toDoArrayList = databaseHelper.getAllData(sortTasks);
-                ToDoTable dataTable = toDoArrayList.get(position);
-
-                Intent intent = new Intent(getBaseContext(), DisplayTaskActivity.class);
-                intent.putExtra("ID", dataTable.getId());
-                startActivity(intent);
-            }
-        });
-
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -126,18 +110,38 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item.getItemId() == R.id.deleteIcon) {
-                    ArrayList<Integer> selectedItemPositions = toDoAdapter.itemsSelected;
-                    int deleted = 0;
-                    int sumDel = selectedItemPositions.size();
-                    for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
-                        databaseHelper.delete(selectedItemPositions.get(i));
-                        deleted++;
-                    }
-                    onResume();
-                    showTasks();
-                    mode.finish();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage("Czy na pewno chcesz usunąć zaznaczone zadania?");
+                    builder.setCancelable(true);
 
-                    Toast.makeText(getApplicationContext(), "Usunięto " + deleted + " z " + sumDel, Toast.LENGTH_SHORT).show();
+                    builder.setPositiveButton("Tak",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    ArrayList<Integer> selectedItemPositions = toDoAdapter.itemsSelected;
+                                    int deleted = 0;
+                                    int sumDel = selectedItemPositions.size();
+                                    for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+                                        databaseHelper.delete(selectedItemPositions.get(i));
+                                        deleted++;
+                                    }
+                                    onResume();
+                                    showTasks();
+                                    mode.finish();
+
+                                    Toast.makeText(getApplicationContext(), "Usunięto " + deleted + " z " + sumDel, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                    builder.setNegativeButton("Anuluj",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+
                     return true;
                 }
                 else if (item.getItemId() == R.id.checkIcon){
@@ -182,21 +186,51 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        SwipeMenuListView listView = findViewById(R.id.listView);
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
+            @Override
+            public void create(SwipeMenu menu) {
+                SwipeMenuItem openItem = new SwipeMenuItem(
+                        getApplicationContext());
+                openItem.setBackground(R.color.colorPrimary);
+                openItem.setWidth(180);
+                openItem.setTitle("Edytuj");
+                openItem.setTitleSize(18);
+                openItem.setTitleColor(Color.WHITE);
+                menu.addMenuItem(openItem);
+            }
+        };
+        listView.setMenuCreator(creator);
+        listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                if (index == 0) {
+                    toDoArrayList = databaseHelper.getAllData(sortTasks);
+                    ToDoTable dataTable = toDoArrayList.get(position);
+
+                    Intent intent = new Intent(getBaseContext(), EditTaskActivity.class);
+                    intent.putExtra("ID", dataTable.getId());
+                    startActivity(intent);
+                }
+                return false;
+            }
+        });
+
         showTasks();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        showTasks();
         savePreferences();
+        showTasks();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        showTasks();
         getPreferences();
+        showTasks();
     }
 
     @Override
@@ -206,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

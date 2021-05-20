@@ -117,7 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor = db.rawQuery("SELECT * FROM " + TABLE_TODO + " ORDER BY " + COLUMN_ID + " ASC", new String[]{});
         }
         else if (sortData == 1) {
-            cursor = db.rawQuery("SELECT * FROM " + TABLE_TODO + " ORDER BY " + COLUMN_DATE + " ASC", new String[]{});
+            cursor = db.rawQuery("SELECT * FROM " + TABLE_TODO + " ORDER BY " + COLUMN_DATE + " ASC," + COLUMN_TIME + " ASC", new String[]{});
         }
         else if (sortData == 2) {
             cursor = db.rawQuery("SELECT * FROM " + TABLE_TODO + " ORDER BY " + COLUMN_PRIORITY + " ASC", new String[]{});
