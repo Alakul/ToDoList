@@ -18,11 +18,12 @@
             android:layout_height="45dp"
             android:layout_gravity="center_vertical"
             app:srcCompat="@drawable/ic_check_gray"
-            android:padding="6dp"/>
+            android:padding="6dp"
+            android:contentDescription="@string/check" />
 
         <LinearLayout
             android:id="@+id/linearLayout5"
-            android:layout_width="wrap_content"
+            android:layout_width="308dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="6dp">
@@ -32,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
-                android:text="Zadanie"
+                android:text="@string/zadanie"
                 android:textSize="18sp" />
 
             <TextView
@@ -40,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="Data" />
+                android:text="@string/data" />
 
         </LinearLayout>
 
@@ -56,7 +57,8 @@
                 android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
-                app:srcCompat="@drawable/ic_priority_high" />
+                app:srcCompat="@drawable/ic_priority_high"
+                android:contentDescription="@string/priority" />
         </LinearLayout>
 
     </LinearLayout>

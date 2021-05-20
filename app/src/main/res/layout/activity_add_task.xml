@@ -7,9 +7,11 @@
     tools:context=".AddTaskActivity"
     android:padding="20dp">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,40 +21,40 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/border_form"
-                android:layout_marginBottom="10dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Zadanie" />
+                    android:text="@string/zadanie" />
 
                 <EditText
                     android:id="@+id/editTaskValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
                     android:background="@drawable/border"
                     android:ems="10"
-                    android:inputType="textPersonName"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"/>
+                    android:inputType="textPersonName" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/border_form"
-                android:layout_marginBottom="10dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Data" />
+                    android:text="@string/data" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -63,8 +65,8 @@
                         android:id="@+id/dateValueButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Wybierz datę"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1"
+                        android:text="@string/wybierz_date" />
 
                     <TextView
                         android:id="@+id/editDateValue"
@@ -72,7 +74,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
@@ -81,16 +83,16 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/border_form"
-                android:layout_marginBottom="10dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Godzina"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:text="@string/godzina" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -101,8 +103,8 @@
                         android:id="@+id/timeValueButton"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Wybierz godzinę"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1"
+                        android:text="@string/wybierz_godzine" />
 
                     <TextView
                         android:id="@+id/editTimeValue"
@@ -118,15 +120,15 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/border_form"
-                android:layout_marginBottom="10dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Priorytet" />
+                    android:text="@string/priorytet" />
 
                 <RadioGroup
                     android:id="@+id/radioGroupPriority"
@@ -139,24 +141,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:buttonTint="@color/red"
-                        android:text="Wysoki" />
+                        android:buttonTint="@color/colorRed"
+                        android:text="@string/wysoki" />
 
                     <RadioButton
                         android:id="@+id/radioButtonMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:buttonTint="@color/yellow"
-                        android:text="Średni" />
+                        android:buttonTint="@color/colorYellow"
+                        android:text="@string/sredni" />
 
                     <RadioButton
                         android:id="@+id/radioButtonLow"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:buttonTint="@color/green"
-                        android:text="Niski" />
+                        android:buttonTint="@color/colorGreen"
+                        android:text="@string/niski" />
                 </RadioGroup>
 
             </LinearLayout>
@@ -165,9 +167,9 @@
                 android:id="@+id/addTaskButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dodaj" />
+                android:text="@string/zapisz" />
 
         </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

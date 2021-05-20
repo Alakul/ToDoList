@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Lista zadań</string>
+    <string name="sredni">Średni</string>
+    <string name="wysoki">Wysoki</string>
+    <string name="niski">Niski</string>
+    <string name="priorytet">Priorytet</string>
+    <string name="wybierz_godzine">Wybierz godzinę</string>
+    <string name="godzina">Godzina</string>
+    <string name="wybierz_date">Wybierz datę</string>
+    <string name="data">Data</string>
+    <string name="zadanie">Zadanie</string>
+    <string name="zapisz">Zapisz</string>
+    <string name="check">check</string>
+    <string name="priority">priority</string>
 </resources>
